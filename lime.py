@@ -16,7 +16,7 @@ def explainer(image:np.ndarray, model, positive_only:bool, num_samples:int=500,
     Parameters
     ----------
     image : 3d numpy array
-         A 3 dimension RGB image image that you want LIME to explain.
+         A 3 dimension RGB image that you want LIME to explain.
     model : _type_
         Classifier prediction probability function, which takes a numpy array 
         and outputs prediction probabilities

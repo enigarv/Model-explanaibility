@@ -5,7 +5,8 @@ import matplotlib.cm as cm
 import tensorflow as tf
 
 def make_gradcam_heatmap(img_array:np.ndarray, model, layer_name:str)->np.ndarray:
-    """_summary_
+    """It generates the heatmap that allows to understand which areas are
+        of interest to the model
 
     Parameters
     ----------
@@ -22,8 +23,6 @@ def make_gradcam_heatmap(img_array:np.ndarray, model, layer_name:str)->np.ndarra
     np.ndarray
         Heatmap regarding the importance of each channel
     """
-
-
     # First, we create a model that maps the input image to the activations
     # of the last conv layer as well as the output predictions
     pred_index=None
@@ -59,8 +58,28 @@ def make_gradcam_heatmap(img_array:np.ndarray, model, layer_name:str)->np.ndarra
 
     return heatmap.numpy()
 
-def save_and_display_gradcam(img_path, heatmap, cam_path="cam.jpg", alpha=0.4):
+def save_and_display_gradcam(img_path:str, heatmap:np.ndarray, size =(224,224),
+                             cam_path="cam.jpg", alpha=0.4)->np.ndarray:
+    """Overlays the output of function `make_gradcam_heatmap`on the image
+        of interest
+    Parameters
+    ----------
+    img_path : str
+        Path of the image
+    heatmap : np.ndarray
+        Output of the function `make_gradcam_heatmap`
+    size : (int,int)
+        Output image size
+    cam_path : str, optional
+        Image name and extension, by default "cam.jpg"
+    alpha : float, optional
+        Superimposition parameter, by default 0.4
 
+    Returns
+    -------
+    np.ndarray
+        A 3 dimension RGB image
+    """
     # Load the original image
     img = tf.keras.preprocessing.image.load_img(img_path)
     img = tf.keras.preprocessing.image.img_to_array(img)
@@ -90,4 +109,32 @@ def save_and_display_gradcam(img_path, heatmap, cam_path="cam.jpg", alpha=0.4):
     # Display Grad CAM
     #display(Image(cam_path))
 
-    return superimposed_img.resize((224,224))
+    return superimposed_img.resize(size)
+
+def combo(img_path:str, model,  layer_name:str, img_size = (224,224))->np.ndarray:
+    """Function combining `make_gradcam_heatmap` and `save_and_display_gradcam`
+
+    Parameters
+    ----------
+    img_path : str
+       Path of the image
+    model : _type_
+        Classifier prediction probability function, which takes a numpy array 
+        and outputs prediction probabilities
+    layer_name : str
+        Name of the layer to explain
+    img_size : int,int, optional
+        Output image size, by default (224,224)
+
+    Returns
+    -------
+    np.ndarray
+        Image explained by Grad-CAM
+    """    
+    img_array = get_img_array(img_path, size = img_size)
+    # Create heatmap
+    heatmap = make_gradcam_heatmap(img_array, model, layer_name)
+    # Generate grad-CAM based on heatmap
+    output = save_and_display_gradcam(img_path, heatmap)
+
+    return output
