@@ -3,6 +3,7 @@ from IPython.display import Image, display
 from skimage.segmentation import mark_boundaries
 import matplotlib.cm as cm
 import tensorflow as tf
+from utils import get_img_array
 
 def make_gradcam_heatmap(img_array:np.ndarray, model, layer_name:str)->np.ndarray:
     """It generates the heatmap that allows to understand which areas are
